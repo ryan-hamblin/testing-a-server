@@ -1,8 +1,7 @@
 {
   "name": "testing",
   "version": "1.0.0",
-  "description":
-    "Here you found the documentation of our api! We're excited to show you the ins and outs of how to interface with our API. This is API is all about the Power Rangers. _NOTE_ that interfacing with our API will bring much joy and satisfaction.",
+  "description": "Here you found the documentation of our api! We're excited to show you the ins and outs of how to interface with our API. This is API is all about the Power Rangers. _NOTE_ that interfacing with our API will bring much joy and satisfaction.",
   "main": "index.js",
   "scripts": {
     "start": "nodemon app.js",
