@@ -28,4 +28,24 @@ server.post('/band', (req, res) => {
     });
 });
 
+server.put('/band', (req, res) => {
+  const { name, genre, id } = req.body;
+  Band.findById(id, (err, band) => {
+    if (err) {
+      res.status(422).json({ error: 'Band not found by that Id' });
+      return;
+    }
+    if (name) {
+      band.name = name;
+    }
+    if (genre) {
+      band.genre = genre;
+    }
+    band.save((error, savedBand) => {
+      if (error) res.status(500).json(error);
+      res.json(savedBand);
+    });
+  });
+});
+
 module.exports = server;

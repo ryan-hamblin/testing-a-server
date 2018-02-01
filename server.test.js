@@ -100,7 +100,49 @@ describe('Band Server', () => {
           }
           expect(res.body[0].name).to.eql(testBand.name);
           expect(res.body[0]._id).to.equal(bandId.toString());
-          // expect(res.body.name).to.equal(testBand.name);
+          done();
+        });
+    });
+  });
+
+  describe(`[PUT] /band`, () => {
+    it('update a document given and id and some text', done => {
+      const bandUpdate = {
+        id: bandId,
+        name: 'Thom York',
+        genre: 'FoooRock'
+      };
+      chai
+        .request(server)
+        .put('/band')
+        .send(bandUpdate)
+        .end((err, res) => {
+          if (err) {
+            throw new Error(err);
+            done();
+          }
+          expect(res.body.name).to.equal(bandUpdate.name);
+          expect(res.body.genre).to.equal(bandUpdate.genre);
+          done();
+        });
+    });
+
+    it('handle error if bad id sent', done => {
+      const bandUpdate = {
+        id: 'asdfasdf',
+        name: 'Thom York',
+        genre: 'FoooRock'
+      };
+      chai
+        .request(server)
+        .put('/band')
+        .send(bandUpdate)
+        .end((err, res) => {
+          if (err) {
+            expect(err.status).to.equal(422);
+            const { error } = err.response.body;
+            expect(error).to.eql('Band not found by that Id');
+          }
           done();
         });
     });
