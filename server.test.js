@@ -9,6 +9,8 @@ const sinon = require('sinon');
 chai.use(chaiHTTP);
 
 describe('Band Server', () => {
+  let bandId = null;
+  let testBand = null;
   before(done => {
     mongoose.Promise = global.Promise;
     mongoose.connect('mongodb://localhost/test');
@@ -26,6 +28,30 @@ describe('Band Server', () => {
     });
   });
 
+  beforeEach(done => {
+    const myBand = new Band({
+      name: 'Radiohead',
+      genre: 'Alt-Rock'
+    });
+    myBand
+      .save()
+      .then(band => {
+        testBand = band;
+        bandId = band._id;
+        done();
+      })
+      .catch(err => {
+        console.error(err);
+        done();
+      });
+  });
+  afterEach(done => {
+    Band.remove({}, err => {
+      if (err) console.error(err);
+      done();
+    });
+  });
+
   describe(`[POST] /band`, () => {
     it('should add a new band', done => {
       const myBand = {
@@ -37,13 +63,45 @@ describe('Band Server', () => {
         .post('/band')
         .send(myBand)
         .end((err, res) => {
-          if (err) {
-            console.error(err);
-            done();
-          } //handle error
           expect(res.status).to.equal(200);
           expect(res.body.name).to.equal('Radiohead');
-          return done();
+          done();
+        });
+    });
+    it('should send back 422 upon bad data', done => {
+      const myBand = {
+        dame: 'Radiohead',
+        genre: 'Alt-Rock'
+      };
+      chai
+        .request(server)
+        .post('/band')
+        .send(myBand)
+        .end((err, res) => {
+          if (err) {
+            expect(err.status).to.equal(422);
+            const { error } = err.response.body;
+            expect(error).to.eql('Invalid input data sent to server');
+            done();
+          } //handle error
+        });
+    });
+  });
+
+  describe(`[GET] /band`, () => {
+    it('should get all bands', done => {
+      chai
+        .request(server)
+        .get('/band')
+        .end((err, res) => {
+          if (err) {
+            throw new Error(err);
+            done();
+          }
+          expect(res.body[0].name).to.eql(testBand.name);
+          expect(res.body[0]._id).to.equal(bandId.toString());
+          // expect(res.body.name).to.equal(testBand.name);
+          done();
         });
     });
   });
